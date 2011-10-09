@@ -1,0 +1,5 @@
+Readme for 3rd Year Project
+
+Began by looking into researching Magic Books (http://www.wired.com/gadgetlab/2008/10/im-in-yur-physi/), however the usefulness of this could not be easily justified. We came up with the idea of tabletop augmented reality as a way of showing reminders for common tasks. A very basic example may be an arrow projected onto the table telling you to move a pen lid to a certain position. A camera will need to find the location of this pen lid, and this could be anywhere on the table. Plenty of scope to extend the project by removing constraints, i.e. Are the objects in the same place or do they move? Is the camera always in the same position?
+
+The challenges involved will mainly revolve around computer vision and being able to project what we want with the Pico projector.
