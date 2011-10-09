@@ -14,8 +14,6 @@ public class Projection extends JFrame {
 	private static int WIDTH = 400;
 	private static int HEIGHT = 400;
 	
-	//test comment
-	
 	//ImageIcon used to display image on projector
 	private ImageIcon m_image;
 	
