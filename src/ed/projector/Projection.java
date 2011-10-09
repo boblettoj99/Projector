@@ -3,7 +3,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.util.ArrayList;
 
-import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -14,6 +13,8 @@ public class Projection extends JFrame {
 	
 	private static int WIDTH = 400;
 	private static int HEIGHT = 400;
+	
+	//test comment
 	
 	//ImageIcon used to display image on projector
 	private ImageIcon m_image;
