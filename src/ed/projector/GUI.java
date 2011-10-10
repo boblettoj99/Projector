@@ -1,5 +1,6 @@
 package ed.projector;
 import java.awt.FlowLayout;
+import java.awt.GraphicsConfiguration;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -20,8 +21,9 @@ public class GUI extends JFrame implements ActionListener{
 	/*
 	 * constructor
 	 */
-	public GUI(Init parent){
-		super("Controls");
+	public GUI(Init parent, GraphicsConfiguration gc){
+		super(gc);
+		this.setTitle("Controls");
 		m_switchBtn.addActionListener(this);
 		m_parent = parent;
 		this.setLayout(new FlowLayout());

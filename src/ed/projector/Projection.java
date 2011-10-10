@@ -1,18 +1,14 @@
 package ed.projector;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GraphicsConfiguration;
 import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 @SuppressWarnings("serial")
 public class Projection extends JFrame {
-	
-	private static int WIDTH = 400;
-	private static int HEIGHT = 400;
 	
 	//ImageIcon used to display image on projector
 	private ImageIcon m_image;
@@ -31,7 +27,12 @@ public class Projection extends JFrame {
 	/*
 	 * Constructor
 	 */
-	public Projection(){
+	public Projection(GraphicsConfiguration gc){
+		super(gc);
+		
+		//remove window borders
+		setUndecorated(true);
+		
 		//add images to list
 		setupList();
 		//initialise image icon to first image
@@ -43,15 +44,10 @@ public class Projection extends JFrame {
 		m_lbl = new JLabel(m_image);
 		
 		//no padding layout
-		setLayout(new FlowLayout(FlowLayout.LEFT,0,0));		
+		setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
 		
-		//jpanel solves the issue of having a 500x500 contentpane
-		//as appose to 500x500 frame
-	    JPanel sizePanel = new JPanel();
-	    sizePanel.setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
-	    sizePanel.setPreferredSize(new Dimension(WIDTH,HEIGHT));
-	    sizePanel.add(m_lbl);
-		this.getContentPane().add(sizePanel);
+		//add the image label
+		this.getContentPane().add(m_lbl);
 	}
 	
 	/*
