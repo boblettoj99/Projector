@@ -13,6 +13,9 @@ public class Init {
 	//The two frames
 	public GUI m_gui;
 	public Projection m_projection;
+	
+	//the chess game interface
+	public ChessInit m_chess;
 
 	/**
 	 * @param args
@@ -28,13 +31,13 @@ public class Init {
 		//check there are more than one devices
 		//this is actually broken (has 2 devices whether or not projector is connected)
 		//odd
-		if(gs.length < 2){
+		if(gs.length < 1){
 			System.err.println("You haven't connected the projector!");
 			System.exit(1);
 		}
 		//get the projector and screen
-		GraphicsDevice gd0 = gs[0];
-		GraphicsDevice gd1 = gs[1];
+		GraphicsDevice gd0 = gs[1];//projector
+		GraphicsDevice gd1 = gs[0];//screen
 		GraphicsConfiguration gc = gd0.getDefaultConfiguration();
 		//set projection's graphics configuration to device 0 (projector)
 		init.m_projection = new Projection(gc);
@@ -54,10 +57,21 @@ public class Init {
 		//show frames
 		init.m_gui.setVisible(true);
 		init.m_projection.setVisible(true);	
+		
+		init.m_chess = new ChessInit();
 	}
-
-	public void switchImage() {
-		m_projection.switchImage();		
+	
+	//uses the current position and finds the next best move
+	public String getNextHint(){
+		return m_chess.getNextHint();
+	}
+	
+	public void nextHint(String next) {
+		m_projection.showNextMove(next);
+	}
+	
+	public void updateGridSize(int i) {
+		m_projection.updateGridSize(i);
 	}
 
 }
