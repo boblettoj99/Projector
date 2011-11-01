@@ -2,6 +2,8 @@ package ed.projector;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.util.ArrayList;
+
 import javax.swing.JFrame;
 
 public class Init {
@@ -66,12 +68,36 @@ public class Init {
 		return m_chess.getNextHint();
 	}
 	
+	/*
+	 * This class acts as middle man between the 
+	 * various parts of program, so a few methods go through here.
+	 */
 	public void nextHint(String next) {
 		m_projection.showNextMove(next);
 	}
 	
 	public void updateGridSize(int i) {
 		m_projection.updateGridSize(i);
+	}
+	
+	public void showLines(boolean grid, boolean square){
+		m_projection.showLines(grid, square);
+	}
+
+	public ArrayList<String> getFromSquares() {
+		return m_chess.getFromSquares();
+	}
+
+	public ArrayList<String> getToSquares(String from) {
+		return m_chess.getToSquares(from);
+	}
+
+	public void executeHint() {
+		m_chess.executeHint();
+	}
+
+	public void executeMove(String move) {
+		m_chess.executeMove(move);
 	}
 
 }

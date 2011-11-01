@@ -41,5 +41,9 @@ public class Projection extends JFrame {
 	
 	public void updateGridSize(int i){
 		m_panel.updateGridSize(i);
+	}	
+	
+	public void showLines(boolean grid, boolean square){
+		m_panel.showLines(grid, square);
 	}
 }

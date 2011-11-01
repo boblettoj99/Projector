@@ -1,7 +1,9 @@
 package ed.projector;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 
 import javax.swing.JPanel;
 
@@ -10,14 +12,19 @@ public class ChessPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	
 	//contains a 1 in blue hint(move) 
-	//2 for white hint(start and end) 
-	//3 for red hint(take)
+	//2 for white hint(start) 
+	//3 for green hint(end)
+	//4 for red hint(take)
+	//5 for yellow hint(promote)
 	private int[][] m_board; 
 	
 	//length of side of each square in the grid
 	//can range from 0-100...should probably change that
 	//at some point.
 	private int m_gridSize;
+	
+	private boolean m_drawGrid;
+	private boolean m_drawSquare;
 	
 	//centre of projector at 800x600, hardware specific
 	final static int CENTER_X = 400;
@@ -26,6 +33,15 @@ public class ChessPanel extends JPanel {
 	public ChessPanel(){
 		m_board = new int[8][8];
 		m_gridSize = 50;
+		//TODO: make this changeable
+		m_drawGrid = false;
+		m_drawSquare = false;
+		this.repaint();
+	}
+	
+	public void showLines(boolean grid, boolean square){
+		m_drawGrid = grid;
+		m_drawSquare = square;
 		this.repaint();
 	}
 	
@@ -61,7 +77,7 @@ public class ChessPanel extends JPanel {
 		
 		boolean isTake = false;
 		if(next.length() == 5){//normal
-			if(next.toCharArray()[4] == 1){
+			if(next.toCharArray()[4] == '1'){
 				isTake = true;
 			}
 		}else if(next.length() == 6){//there is promotion piece
@@ -73,11 +89,11 @@ public class ChessPanel extends JPanel {
 		//TODO: Deal with castling
 		//debug
 		System.out.println("Square: (" + start[0] + ", " + start[1] + ")" +
-				" to square: (" + end[0] + ", " + end[1] + ").");
+				" to square: (" + end[0] + ", " + end[1] + ")."+"\n---------------------------------");
 		//set start and end points
 		m_board[start[0]][start[1]] = 2;
-		m_board[end[0]][end[1]] = 2;
-		if(isTake)m_board[end[0]][end[1]] = 3;
+		m_board[end[0]][end[1]] = 3;
+		if(isTake)m_board[end[0]][end[1]] = 4;
 		
 		calculateInbetweenPoints(start, end);
 	}
@@ -173,7 +189,10 @@ public class ChessPanel extends JPanel {
 	public void paint(Graphics g){
 		super.paintComponent(g);
 		
-		//paint grid
+		g.setColor(Color.BLACK);
+		g.fillRect(0, 0, CENTER_X*2, CENTER_Y*2);
+		g.setColor(Color.RED);
+		
 		//init starting coords
 		int x = ChessPanel.CENTER_X - (4*m_gridSize);
 		int y = ChessPanel.CENTER_Y - (4*m_gridSize);
@@ -181,17 +200,29 @@ public class ChessPanel extends JPanel {
 		int startx = x;
 		int starty = y;
 		
-		int i;
-		for(i = 0; i < 9; i++){//need to draw 9 lines not 8
-			g.drawLine(x, y, x+(8*m_gridSize), y);
-			y = y + m_gridSize;
+		//draw square
+		if(m_drawSquare){
+			Graphics2D g2 = (Graphics2D) g;
+	        double scale = 8.0/9.0;
+	        g2.scale(scale, 1);
+			g2.setStroke(new BasicStroke(5));
+			g2.drawRect(x, y, 8*m_gridSize, 8*m_gridSize);
 		}
-		//told you
-		x = startx;
-		y = starty;
-		for(i = 0; i < 9; i++){
-			g.drawLine(x, y, x, y+(8*m_gridSize));
-			x = x + m_gridSize;
+
+		//paint grid
+		if(m_drawGrid){			
+			int i;
+			for(i = 0; i < 9; i++){//need to draw 9 lines not 8
+				g.drawLine(x, y, x+(8*m_gridSize), y);
+				y = y + m_gridSize;
+			}
+			//told you
+			x = startx;
+			y = starty;
+			for(i = 0; i < 9; i++){
+				g.drawLine(x, y, x, y+(8*m_gridSize));
+				x = x + m_gridSize;
+			}
 		}
 		
 		//now draw any hint squares
@@ -202,9 +233,11 @@ public class ChessPanel extends JPanel {
 				if(square != 0){
 					if(square == 1){//inbetween point
 						g.setColor(Color.BLUE);
-					}else if(square == 2){//start/end point
+					}else if(square == 2){//start
+						g.setColor(Color.WHITE);
+					}else if(square == 3){//end point
 						g.setColor(Color.GREEN);
-					}else if(square == 3){
+					}else if(square == 4){//end point
 						g.setColor(Color.RED);
 					}
 					g.fillRect(startx+(x*m_gridSize)+1, starty+(y*m_gridSize)+1, 

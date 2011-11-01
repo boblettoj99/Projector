@@ -1,10 +1,15 @@
 package ed.projector;
 
+import java.util.ArrayList;
+
 import org.forritan.talvmenni.ChessEngine;
 import org.forritan.talvmenni.TalvMenni;
+import org.forritan.talvmenni.bitboard.Square;
+import org.forritan.talvmenni.bitboard.Squares;
 import org.forritan.talvmenni.knowledge.Move;
 import org.forritan.talvmenni.knowledge.MoveHistory;
 import org.forritan.talvmenni.knowledge.Position;
+import org.forritan.talvmenni.knowledge.Position.PromotionPiece;
 import org.forritan.talvmenni.knowledge.TheoryBook;
 import org.forritan.talvmenni.search.PrincipalVariation;
 import org.forritan.talvmenni.search.PrincipalVariation.Factory;
@@ -19,6 +24,10 @@ public class ChessInit {
 	private ChessEngine m_ce;
 	//is it white's go?
 	private boolean m_whiteMove;
+	//next move to do (if user chooses to do hint)
+	private Position.Move m_nextMove;
+	//useful object, used for comparisons, square names etc
+	public Square m_sq = Squares.create();
 	
 	//constructor
 	public ChessInit(){
@@ -30,6 +39,8 @@ public class ChessInit {
 		m_ce.run();
 		m_ce.getProtocol().newGame();
 		
+		//no move at the start
+		m_nextMove = null;
 		//start on white
 		m_whiteMove = true;
 	}
@@ -43,18 +54,39 @@ public class ChessInit {
 		//get string representation of move
 		//fromsquare(2)-tosquare(2)-promotionpieceifapplicable(1)
 		String s = m.toString();
-		//debug
-		System.out.println(s);
-		int isTake = updatePosition(m);
+		int isTake = isTakeMove(m);
+		System.out.println(s+isTake);
+		m_nextMove = m;
 		return s+isTake;
 	}
 	
-	private int updatePosition(Position.Move move){
+	/*
+	 * Works out whether or not a move takes a piece.
+	 * Looks at all the opposition pieces and sees if they are
+	 * on the square the user is going to.
+	 */
+	private int isTakeMove(Position.Move m){
+		long allPieces;
+		int isTake = 0;
+		Position p = m_ce.getProtocol().getCurrentPosition();
 		if(m_whiteMove){
-			m_whiteMove = false;
+			allPieces = p.getBlack().allPieces;
+			if((m.to & allPieces) != Square._EMPTY_BOARD){//piece is taken
+				isTake = 1;
+			}
 		}else{
-			m_whiteMove = true;
+			allPieces = p.getWhite().allPieces;
+			if((m.to & allPieces) != Square._EMPTY_BOARD){//piece is taken
+				isTake = 1;
+			}
 		}
+		return isTake;
+	}
+	
+	/*
+	 * Plays the given move on the actual chess game.
+	 */
+	private void updatePosition(Position.Move move){
 		if(move != null){
 			Move m = new Move(m_ce.getProtocol().getCurrentPosition(),
 					move.from, move.to, move.promotionPiece);
@@ -63,8 +95,73 @@ public class ChessInit {
 		}else{
 			System.err.println("Null move!");
 		}
-		//Always returning 0 (no take)
-		//TODO: deal with taking pieces.
-		return 0;
+		//update whose go it is
+		if(m_whiteMove){
+			m_whiteMove = false;
+		}else{
+			m_whiteMove = true;
+		}
+	}
+
+	/*
+	 * Checks each of the 64 squares, adds any to the list which 
+	 * contain pieces of the team whose go it is.
+	 */
+	public ArrayList<String> getFromSquares() {
+		ArrayList<String> list = new ArrayList<String>();
+		long allPieces;
+		if(m_whiteMove){
+			allPieces = m_ce.getProtocol().getCurrentPosition().getWhite().allPieces;
+		}else{
+			allPieces = m_ce.getProtocol().getCurrentPosition().getBlack().allPieces;
+		}
+		int i;
+		long l;
+		for(i = 0; i < 64; i++){
+			l = m_sq.getSquare(i);
+			if((allPieces & l) != Square._EMPTY_BOARD){
+				list.add(m_sq.getSquareName(l));
+			}
+		}
+		return list;
+	}
+
+	/*
+	 * Checks every square, sees if it is legal move for
+	 * piece from 'from' square.
+	 */
+	public ArrayList<String> getToSquares(String f) {
+		ArrayList<String> list = new ArrayList<String>();
+		int i;
+		long to;
+		long from = m_sq.getSquare(f.toUpperCase());
+		for(i=0;i<64;i++){
+			to = m_sq.getSquare(i);
+			if(m_ce.getProtocol().getCurrentPosition().isLegalMove(from, to)){
+				list.add(m_sq.getSquareName(to));
+			}
+		}
+		return list;
+	}
+
+	/*
+	 * plays the hint move which was stored earlier
+	 * when getting the hint for projection in getNextHint()
+	 */
+	public void executeHint() {
+		updatePosition(m_nextMove);
+	}
+
+	/*
+	 * plays the custom move the user selected from the drop
+	 * down boxes.
+	 */
+	public void executeMove(String move) {
+		System.out.println(move.substring(0, 2).toUpperCase());
+		System.out.println(move.substring(2, 4).toUpperCase());
+		long from = m_sq.getSquare(move.substring(0, 2).toUpperCase());
+		long to = m_sq.getSquare(move.substring(2, 4).toUpperCase());
+		Position.Move m = new Position.Move(from, to, PromotionPiece.NONE);
+		updatePosition(m);
 	}
 }
