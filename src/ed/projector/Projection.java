@@ -46,4 +46,8 @@ public class Projection extends JFrame {
 	public void showLines(boolean grid, boolean square){
 		m_panel.showLines(grid, square);
 	}
+	
+	public void shiftGrid(int x, int y){
+		m_panel.shiftGrid(x, y);
+	}
 }

@@ -27,11 +27,16 @@ public class ChessPanel extends JPanel {
 	private boolean m_drawSquare;
 	
 	//centre of projector at 800x600, hardware specific
-	final static int CENTER_X = 400;
-	final static int CENTER_Y = 300;
+	private static final int PROJECTOR_HEIGHT = 600;
+	private static final int PROJECTOR_WIDTH = 800;
+	
+	private int m_centreX;
+	private int m_centreY;
 
 	public ChessPanel(){
 		m_board = new int[8][8];
+		m_centreX = 400;
+		m_centreY = 300;
 		m_gridSize = 50;
 		//TODO: make this changeable
 		m_drawGrid = false;
@@ -45,6 +50,20 @@ public class ChessPanel extends JPanel {
 		this.repaint();
 	}
 	
+	/*
+	 * translates the grid displayed (used when setting up)
+	 * coordinates correspond to centre of grid
+	 */
+	public void shiftGrid(int x, int y){
+		m_centreX = x;
+		m_centreY = y;
+		this.repaint();
+	}
+	
+	/*
+	 * Change grid size
+	 * int i corresponds to length of side of each square
+	 */
 	public void updateGridSize(int i){
 		m_gridSize = i;
 		this.repaint();
@@ -188,24 +207,29 @@ public class ChessPanel extends JPanel {
 	@Override
 	public void paint(Graphics g){
 		super.paintComponent(g);
+		Graphics2D g2 = (Graphics2D) g;
 		
+		//black background
 		g.setColor(Color.BLACK);
-		g.fillRect(0, 0, CENTER_X*2, CENTER_Y*2);
+		g.fillRect(0, 0, PROJECTOR_WIDTH, PROJECTOR_HEIGHT);
 		g.setColor(Color.RED);
 		
 		//init starting coords
-		int x = ChessPanel.CENTER_X - (4*m_gridSize);
-		int y = ChessPanel.CENTER_Y - (4*m_gridSize);
+		int x = m_centreX - (4*m_gridSize);
+		int y = m_centreY - (4*m_gridSize);
 		//need these later
 		int startx = x;
 		int starty = y;
 		
+		//set the scale
+        double scale = 8.0/9.0;
+        g2.scale(scale, 1);
+        
+        //make sure lines are visible
+		g2.setStroke(new BasicStroke(5));
+		
 		//draw square
 		if(m_drawSquare){
-			Graphics2D g2 = (Graphics2D) g;
-	        double scale = 8.0/9.0;
-	        g2.scale(scale, 1);
-			g2.setStroke(new BasicStroke(5));
 			g2.drawRect(x, y, 8*m_gridSize, 8*m_gridSize);
 		}
 

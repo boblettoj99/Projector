@@ -30,7 +30,10 @@ public class GUI extends JFrame implements ActionListener, ChangeListener{
 	public final JComboBox m_selectFrom = new JComboBox();
 	public final JComboBox m_selectTo = new JComboBox();
 	//On slide, changes size of chess board
-	public final JSlider m_slider = new JSlider();
+	public final JSlider m_sizeSlider = new JSlider();
+	//On slide, changes x and y coordinates of grid
+	public final JSlider m_xSlider = new JSlider(0, 800);
+	public final JSlider m_ySlider = new JSlider(0, 600);
 	//checkboxes for drawing grid/square
 	public final JCheckBox m_setGrid = new JCheckBox();
 	public final JCheckBox m_setSquare = new JCheckBox();
@@ -47,14 +50,18 @@ public class GUI extends JFrame implements ActionListener, ChangeListener{
 		m_beginBtn.addActionListener(this);
 		m_hintBtn.addActionListener(this);
 		m_moveBtn.addActionListener(this);
-		m_slider.addChangeListener(this);
+		m_sizeSlider.addChangeListener(this);
+		m_xSlider.addChangeListener(this);
+		m_ySlider.addChangeListener(this);
 		m_setGrid.addActionListener(this);
 		m_setSquare.addActionListener(this);
 		m_selectFrom.addActionListener(this);
 		m_selectTo.addActionListener(this);
 		m_parent = parent;
 		//initiated for salvation army chess set
-		m_slider.setValue(69);
+		m_sizeSlider.setValue(69);
+		m_xSlider.setValue(400);
+		m_ySlider.setValue(300);
 		//set to move to disabled until from is chosen
 		m_selectTo.setEnabled(false);
 		//set others to disabled until begin game is pressed
@@ -62,13 +69,21 @@ public class GUI extends JFrame implements ActionListener, ChangeListener{
 		m_selectFrom.setEnabled(false);
 		m_moveBtn.setEnabled(false);
 		//labels
+		JLabel sizeLabel = new JLabel("Grid size: ");
+		JLabel xLabel = new JLabel("Grid x position: ");
+		JLabel yLabel = new JLabel("Grid y position: ");
 		JLabel fromLabel = new JLabel("From: ");
 		JLabel toLabel = new JLabel("To: ");
 		JLabel gridLabel = new JLabel("Show grid: ");
 		JLabel squareLabel = new JLabel("Show square: ");
 		//add it all
 		this.setLayout(new FlowLayout());
-		this.getContentPane().add(m_slider);
+		this.getContentPane().add(sizeLabel);
+		this.getContentPane().add(m_sizeSlider);
+		this.getContentPane().add(xLabel);
+		this.getContentPane().add(m_xSlider);
+		this.getContentPane().add(yLabel);
+		this.getContentPane().add(m_ySlider);		
 		this.getContentPane().add(gridLabel);
 		this.getContentPane().add(m_setGrid);
 		this.getContentPane().add(squareLabel);
@@ -135,9 +150,13 @@ public class GUI extends JFrame implements ActionListener, ChangeListener{
 	
 	@Override
 	public void stateChanged(ChangeEvent e){
-		if(e.getSource() == m_slider){
-				int i = m_slider.getValue();
+		if(e.getSource() == m_sizeSlider){
+				int i = m_sizeSlider.getValue();
 				m_parent.updateGridSize(i);
+		}else if(e.getSource() == m_xSlider || e.getSource() == m_ySlider){
+				int x = m_xSlider.getValue();
+				int y = m_ySlider.getValue();
+				m_parent.shiftGrid(x, y);
 		}
 	}
 	
