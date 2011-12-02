@@ -2,6 +2,7 @@ package ed.projector;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.Image;
 import java.util.ArrayList;
 
 import javax.swing.JFrame;
@@ -9,8 +10,8 @@ import javax.swing.JFrame;
 public class Init {
 	
 	//width/height of controls
-	public static int CONTROL_WIDTH = 400;
-	public static int CONTROL_HEIGHT = 300;
+	public static int CONTROL_WIDTH = 650;
+	public static int CONTROL_HEIGHT = 650;
 	
 	//The two frames
 	public GUI m_gui;
@@ -28,9 +29,6 @@ public class Init {
 	public static void main(String[] args) {
 		//Make instance of this class, acts as parent for frames
 		Init init = new Init();
-
-		//Make webcam
-		init.m_camera = new Camera(init);
 		
 		//get the graphics environment
 		GraphicsEnvironment ge = GraphicsEnvironment.
@@ -61,18 +59,18 @@ public class Init {
 		//close everything on any frame's closing
 		init.m_gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		init.m_projection.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		init.m_camera.m_cf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		//show frames
 		init.m_gui.setVisible(true);
 		init.m_projection.setVisible(true);
-        init.m_camera.m_cf.setVisible(true);
 		
 		//Create chess interface
 		init.m_chess = new ChessInit();
-		
+
+		//Make webcam
+		init.m_camera = new Camera(init);
 		//Start camera going
-		init.m_camera.startCamera();
+		init.m_camera.init();
 	}
 	
 	//uses the current position and finds the next best move
@@ -114,5 +112,9 @@ public class Init {
 
 	public void executeMove(String move) {
 		m_chess.executeMove(move);
+	}
+	
+	public void updateCameraImage(Image im){
+		m_gui.updateCameraImage(im);
 	}
 }

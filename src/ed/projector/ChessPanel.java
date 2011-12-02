@@ -212,7 +212,7 @@ public class ChessPanel extends JPanel {
 		//black background
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, PROJECTOR_WIDTH, PROJECTOR_HEIGHT);
-		g.setColor(Color.RED);
+		g.setColor(Color.WHITE);
 		
 		//init starting coords
 		int x = m_centreX - (4*m_gridSize);
@@ -226,7 +226,7 @@ public class ChessPanel extends JPanel {
         g2.scale(scale, 1);
         
         //make sure lines are visible
-		g2.setStroke(new BasicStroke(5));
+		g2.setStroke(new BasicStroke(15));
 		
 		//draw square
 		if(m_drawSquare){

@@ -1,15 +1,19 @@
 package ed.projector;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GraphicsConfiguration;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
+import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -37,8 +41,16 @@ public class GUI extends JFrame implements ActionListener, ChangeListener{
 	//checkboxes for drawing grid/square
 	public final JCheckBox m_setGrid = new JCheckBox();
 	public final JCheckBox m_setSquare = new JCheckBox();
+	//JPanel and icon for drawing camera image
+	public final JPanel m_cameraPanel = new JPanel();
+	public final JLabel m_cameraLabel = new JLabel("[none]");
 	//Parent class Init
 	public Init m_parent;
+	
+	//initial sizes of grids (for different chess boards)
+	public final static int SMALL_BOARD = 40;
+	public final static int SALLY_ARMY_BOARD = 69;
+	
 	
 	/*
 	 * constructor
@@ -59,7 +71,7 @@ public class GUI extends JFrame implements ActionListener, ChangeListener{
 		m_selectTo.addActionListener(this);
 		m_parent = parent;
 		//initiated for salvation army chess set
-		m_sizeSlider.setValue(69);
+		m_sizeSlider.setValue(SMALL_BOARD);
 		m_xSlider.setValue(400);
 		m_ySlider.setValue(300);
 		//set to move to disabled until from is chosen
@@ -76,14 +88,16 @@ public class GUI extends JFrame implements ActionListener, ChangeListener{
 		JLabel toLabel = new JLabel("To: ");
 		JLabel gridLabel = new JLabel("Show grid: ");
 		JLabel squareLabel = new JLabel("Show square: ");
+		m_cameraPanel.add(m_cameraLabel);
+		m_cameraPanel.setPreferredSize(new Dimension(480, 640));
 		//add it all
 		this.setLayout(new FlowLayout());
-		this.getContentPane().add(sizeLabel);
-		this.getContentPane().add(m_sizeSlider);
 		this.getContentPane().add(xLabel);
 		this.getContentPane().add(m_xSlider);
 		this.getContentPane().add(yLabel);
-		this.getContentPane().add(m_ySlider);		
+		this.getContentPane().add(m_ySlider);	
+		this.getContentPane().add(sizeLabel);
+		this.getContentPane().add(m_sizeSlider);	
 		this.getContentPane().add(gridLabel);
 		this.getContentPane().add(m_setGrid);
 		this.getContentPane().add(squareLabel);
@@ -95,6 +109,7 @@ public class GUI extends JFrame implements ActionListener, ChangeListener{
 		this.getContentPane().add(toLabel);
 		this.getContentPane().add(m_selectTo);
 		this.getContentPane().add(m_moveBtn);
+		this.getContentPane().add(m_cameraPanel);
 	}
 
 	@Override
@@ -158,6 +173,12 @@ public class GUI extends JFrame implements ActionListener, ChangeListener{
 				int y = m_ySlider.getValue();
 				m_parent.shiftGrid(x, y);
 		}
+	}
+	
+	public void updateCameraImage(Image im){
+		ImageIcon icon = new ImageIcon(im);
+		m_cameraLabel.setIcon(icon);
+		this.repaint();
 	}
 	
 	public void updateComboBox(){
