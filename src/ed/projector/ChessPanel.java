@@ -212,7 +212,7 @@ public class ChessPanel extends JPanel {
 		//black background
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, PROJECTOR_WIDTH, PROJECTOR_HEIGHT);
-		g.setColor(Color.WHITE);
+		g.setColor(Color.RED);
 		
 		//init starting coords
 		int x = m_centreX - (4*m_gridSize);
