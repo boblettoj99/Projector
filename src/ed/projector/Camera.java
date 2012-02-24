@@ -80,7 +80,7 @@ public class Camera implements Runnable{
 	
 	private void calibrate() {
 		//get location of projection
-		int[][] pro_corners = findProjection();
+		findProjection();
 		
 		//find chessboard
 		findBoard();
@@ -94,7 +94,7 @@ public class Camera implements Runnable{
 	 * Finds the corners using k-means on the line end points.
 	 * returns corners
 	 */
-	private int[][] findProjection() {
+	private void findProjection() {
 				
 		/*
 		 * PART 1
@@ -143,12 +143,6 @@ public class Camera implements Runnable{
 		//get image into correct format
 		IplImage difference2 = IplImage.create(m_frame.width(), m_frame.height(), IPL_DEPTH_8U, 1);
 	    cvCvtColor(difference, difference2, CV_RGB2GRAY);
-		//canny edge detector
-	    cvCanny(difference2, difference2, 1, 50, 3);
-		//transforms on the image to improve line detection
-	    cvDilate(difference2, difference2, null, 3);
-		//cvErode(difference2, difference2, null, 2);
-		//show detected edges
 	    m_parent.updateCameraImage(difference2.getBufferedImage());
 		
 		
@@ -158,49 +152,59 @@ public class Camera implements Runnable{
 		 */
 		IplImage houghlines = difference.clone();
 		CvMemStorage storage = CvMemStorage.create();
-		CvPoint pt1, pt2;
-		Pointer pointer;
+		CvPoint2D32f point;
 		//hough transform
-		CvSeq lines = cvHoughLines2(difference2, storage, CV_HOUGH_PROBABILISTIC, 4, Math.PI / 180, 100, 90, 10);
-		//list to store points (start and end points of hough output lines) 
-		ArrayList<Point> points = new ArrayList<Point>();
-		//draw each line on the image
-		for(int i = 0; i < lines.total(); i++ )
-		{
-			//get point data
-            pointer = cvGetSeqElem(lines, i);
-            pt1  = new CvPoint(pointer).position(0);
-            pt2  = new CvPoint(pointer).position(1);
-            //add to list to make it easier to access points
-            points.add(new Point(pt1.x(), pt1.y()));
-            points.add(new Point(pt2.x(), pt2.y()));
-            //draw on image
-		    cvCircle(houghlines, pt1, 3, CvScalar.BLUE, -1, 8, 0);
-		    cvCircle(houghlines, pt2, 3, CvScalar.BLUE, -1, 8, 0);
-			//show image
-			m_parent.updateCameraImage(houghlines.getBufferedImage());
-		}
-		//clear up
-		storage.release();
-		//show detected lines
-		m_parent.updateCameraImage(houghlines.getBufferedImage());
+		CvSeq lines = cvHoughLines2(difference2, storage, CV_HOUGH_STANDARD, 1, Math.PI / 180, 80, 0, 0);
 		
+		m_parent.updateCameraImage(houghlines.getBufferedImage());
 		
 		/*
 		 * PART 6
-		 *  - GET CORNERS
+		 *  - Separate the lines into 2 groups (sideways and longways)
 		 */
-		//get means for corners (average of clustered end/start points)
-		int[][] means = kMeans(points, 4, houghlines);
-		//draw lines between means
-		for(int i = 0; i < 4; i++){
-			cvLine(houghlines, new CvPoint(means[i][0], means[i][1]), 
-							   new CvPoint(means[(i+1)%4][0], means[(i+1)%4][1]), CvScalar.GREEN, 2, CV_AA, 0);
+		ArrayList<CvPoint2D32f> points1 = new ArrayList<CvPoint2D32f>();
+		ArrayList<CvPoint2D32f> points2 = new ArrayList<CvPoint2D32f>();
+		point = new CvPoint2D32f(cvGetSeqElem(lines, 0));//line data
+        double rho=point.x();//distance from origin
+        double theta=point.y();//angle      
+        points1.add(point);//clearly parallel to itself
+        
+        CvPoint2D32f temp_point;
+        double temp_rho, temp_theta;
+        //find parallel/perpendicular lines
+        for(int j = 0; j < lines.total(); j++){
+           	temp_point = new CvPoint2D32f(cvGetSeqElem(lines, j));
+           	temp_rho = temp_point.x();
+           	temp_theta = temp_point.y();
+           	//if roughly at the same angle - else if roughly perpendicular
+           	if(theta < temp_theta + 1 
+           	&& theta > temp_theta - 1){
+           		points1.add(temp_point);	
+           	}else {
+           		points2.add(temp_point);
+           	}
+        }	
+		m_parent.updateCameraImage(houghlines.getBufferedImage());
+		
+		/*
+		 * PART 7
+		 *  - Find intersection points between the two groups
+		 */
+		ArrayList<CvPoint> intersections = new ArrayList<CvPoint>();
+		for(CvPoint2D32f p : points1){
+			for(CvPoint2D32f q : points2){
+				CvPoint int_point = findIntersectionPoint(p, q);
+				if(int_point != null){
+					intersections.add(int_point);
+				}
+			}
 		}
-		//show detected corners
-	    m_parent.updateCameraImage(houghlines.getBufferedImage());
-	    
-	    return means;
+		ArrayList<Point> intersections_as_Point = new ArrayList<Point>();
+		for(CvPoint cvp : intersections){
+			intersections_as_Point.add(new Point(cvp.x(), cvp.y()));
+		}
+		
+		int[][] means = kMeans(intersections_as_Point, 4, houghlines);
 	}
 	
 	private void findBoard() {
